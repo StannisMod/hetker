@@ -8,10 +8,25 @@
 #include "hetker_lib.h"
 #include "strings.h"
 
+typedef struct tagDevice Device;
+struct tagDevice {
+    cl_device_id id;
+    cl_context context;
+    cl_command_queue queue;
+    cl_program program;
+    cl_kernel kernels[LIB_KERNEL_COUNT];
+};
+
 typedef struct tagDeviceList DeviceList;
-struct DeviceList {
-    cl_device_id* data;
+struct tagDeviceList {
     size_t length;
+    Device data[CL_MAX_DEVICES];
+};
+
+typedef struct tagResult Result;
+struct tagResult {
+    int code;
+    String message;
 };
 
 String* readAll(FILE *F);

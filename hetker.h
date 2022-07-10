@@ -10,7 +10,14 @@
 /**
  * Need to be called to initialize the library on given device
  */
+void init();
 
-void initDevice(cl_device_id device);
+/**
+ * Need to be called to initialize the library on given device
+ * @return 0 - device initialized successfully
+ *         1 - max number of devices exceeded
+ *         <other value> - returns an OpenCL error code that describes an error
+ */
+cl_int initDevice(cl_device_id device);
 
 cl_device_id* getFullListDevices();
