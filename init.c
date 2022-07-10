@@ -1,16 +1,17 @@
-#if DEBUG
-#define LIST_KERNELS ../kernels/list.cl
-#define MATRIX_KERNELS ../kernels/matrix.cl
-#define TEXT_KERNELS ../kernels/text.cl
-#define IMAGE_KERNELS ../kernels/image.cl
-#else
-#define LIST_KERNELS kernels/list.cl
-#define MATRIX_KERNELS kernels/matrix.cl
-#define TEXT_KERNELS kernels/text.cl
-#define IMAGE_KERNELS kernels/image.cl
-#endif
-
 #include "hetker_lib.h"
+
+const unsigned char IMAGE_KERNEL[] = {
+#include "kernels/image.cl"
+};
+const unsigned char LIST_KERNEL[] = {
+#include "kernels/list.cl"
+};
+const unsigned char MATRIX_KERNEL[] = {
+#include "kernels/matrix.cl"
+};
+const unsigned char TEXT_KERNEL[] = {
+#include "kernels/text.cl"
+};
 
 void initDevice(cl_device_id device) {
 
