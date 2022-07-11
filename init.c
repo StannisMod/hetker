@@ -30,32 +30,39 @@ const size_t KERNEL_LENGTHS[4] = {
         CL_MAX_KERNEL_LENGTH
 };
 
-void init() {
+void hetkerInit() {
     deviceList.length = 0;
 }
 
-cl_int initDevice(cl_device_id device) {
+void hetkerEnableLogging() {
+    loggingEnabled = 1;
+}
+
+cl_kernel* initKernels(Device* device) {
+    // TODO
+}
+
+Result* hetkerInitDevice(cl_device_id deviceId) {
     if (deviceList.length == CL_MAX_DEVICES) {
-        logger("Can't init new device: maximum number of initialized devices exceed");
-        return CL_BUILD_ERROR;
+        return loggingResult(1, "Can't init new deviceId: maximum number of initialized devices exceed");
     }
 
     cl_int errCode;
 
     cl_context context = clCreateContext( NULL,
                                           1,
-                                          &device,
+                                          &deviceId,
                                           NULL, NULL, &errCode);
-    if (checkErr(errCode, "Error on create context")) {
-        return errCode;
+    if (errCode != CL_SUCCESS) {
+        return loggingResult(errCode, "Error on create context");
     }
 
     cl_command_queue queue = clCreateCommandQueue(context,
-                                                  device,
+                                                  deviceId,
                                                   CL_QUEUE_PROFILING_ENABLE, &errCode);
-    if (checkErr(errCode, "Error on create command queue")) {
+    if (errCode != CL_SUCCESS) {
         clReleaseContext(context);
-        return errCode;
+        return loggingResult(errCode, "Error on create command queue");
     }
 
     cl_program program = clCreateProgramWithSource(context,
@@ -63,34 +70,44 @@ cl_int initDevice(cl_device_id device) {
                                                    &KERNELS[0],
                                                    &KERNEL_LENGTHS[0], &errCode);
 
-    if (checkErr(errCode, "Error on create program")) {
+    if (errCode != CL_SUCCESS) {
         clReleaseCommandQueue(queue);
         clReleaseContext(context);
-        return 1;
+        return loggingResult(errCode, "Error on create program");
     }
 
     char options[100];
 //    sprintf(options, "-D BATCH_SIZE=%i", batchSize);
 
-    if ((errCode = clBuildProgram(program, 1, &device, options, NULL, NULL)) != 0) {
-        printf("Error on build program: %i\n", errCode);
+    if ((errCode = clBuildProgram(program, 1, &deviceId, options, NULL, NULL)) != 0) {
 
         size_t log_size;
-        clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
+        clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
 
         char *log = malloc(log_size);
-        clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
+        clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
 
-        printf("%s\n", log);
+        char* text = malloc(log_size + 50 * sizeof(char));
+        sprintf(text, "Error on build program: %i\n%s\n", errCode, log);
         free(log);
+        Result* res = loggingResult(errCode, text);
+        free(text);
 
         clReleaseProgram(program);
         clReleaseCommandQueue(queue);
         clReleaseContext(context);
-        return 1;
+        return res;
     }
 
-    return 0;
+    Device* device = malloc(sizeof(Device));
+    device->context = context;
+    device->queue = queue;
+    device->program = program;
+    device->kernels = initKernels(device);
+
+    deviceList.data[deviceList.length] = device;
+
+    return resultCode(0);
 }
 
 int deviceComparator(const cl_device_id *d1, const cl_device_id *d2) {

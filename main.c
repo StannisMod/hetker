@@ -1,6 +1,10 @@
 #include <stdio.h>
 
+#include "hetker.h"
+
 int main() {
-    printf("Hello, World!\n");
+    hetkerInit();
+    hetkerEnableLogging();
+
     return 0;
 }

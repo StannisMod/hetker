@@ -16,4 +16,6 @@ struct tagString {
 
 String* allocateString(size_t maxLength);
 
+String* constructString(char* chars);
+
 void freeString(String* str);

@@ -24,12 +24,15 @@ struct tagTask {
 };
 
 extern DeviceList deviceList;
+extern int loggingEnabled;
 
 cl_device_id getPreferredDevice(int index);
 
 int checkErr(cl_int err, char* errorMsg);
 
 void logger(const char data[]) {
-    printf("[hetker] %s", data);
+    if (loggingEnabled) {
+        printf("[hetker] %s", data);
+    }
 }
 

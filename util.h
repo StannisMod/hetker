@@ -20,13 +20,21 @@ struct tagDevice {
 typedef struct tagDeviceList DeviceList;
 struct tagDeviceList {
     size_t length;
-    Device data[CL_MAX_DEVICES];
+    Device* data[CL_MAX_DEVICES];
 };
 
 typedef struct tagResult Result;
 struct tagResult {
     int code;
-    String message;
+    String* message;
 };
 
 String* readAll(FILE *F);
+
+Result* resultCode(int code);
+
+Result* resultString(int code, String* msg);
+
+Result* result(int code, char* msg);
+
+Result* loggingResult(int code, char* msg);
