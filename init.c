@@ -3,27 +3,27 @@
 // TODO Count & check
 #define CL_MAX_KERNEL_LENGTH 10000
 
-const unsigned char IMAGE_KERNEL[] = {
+const char IMAGE_KERNEL[] = {
 #include "kernels/image.cl"
 0};
-const unsigned char LIST_KERNEL[] = {
+const char LIST_KERNEL[] = {
 #include "kernels/list.cl"
 0};
-const unsigned char MATRIX_KERNEL[] = {
+const char MATRIX_KERNEL[] = {
 #include "kernels/matrix.cl"
 0};
-const unsigned char TEXT_KERNEL[] = {
+const char TEXT_KERNEL[] = {
 #include "kernels/text.cl"
 0};
 
-const unsigned char* KERNELS[] = {
+const char* KERNELS[] = {
         IMAGE_KERNEL,
         LIST_KERNEL,
         MATRIX_KERNEL,
         TEXT_KERNEL
 };
 
-const size_t KERNEL_LENGTHS[] = {
+const size_t KERNEL_LENGTHS[4] = {
         CL_MAX_KERNEL_LENGTH,
         CL_MAX_KERNEL_LENGTH,
         CL_MAX_KERNEL_LENGTH,
@@ -58,11 +58,10 @@ cl_int initDevice(cl_device_id device) {
         return errCode;
     }
 
-    // 4. Perform runtime source compilation, and obtain kernelAggregate entry point.
     cl_program program = clCreateProgramWithSource(context,
-                                                   1,
-                                                   &KERNELS,
-                                                   &KERNEL_LENGTHS, &errCode);
+                                                   4,
+                                                   &KERNELS[0],
+                                                   &KERNEL_LENGTHS[0], &errCode);
 
     if (checkErr(errCode, "Error on create program")) {
         clReleaseCommandQueue(queue);
