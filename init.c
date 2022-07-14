@@ -1,34 +1,5 @@
 #include "hetker_lib.h"
-
-// TODO Count & check
-#define CL_MAX_KERNEL_LENGTH 10000
-
-const char IMAGE_KERNEL[] = {
-#include "kernels/image.cl"
-0};
-const char LIST_KERNEL[] = {
-#include "kernels/list.cl"
-0};
-const char MATRIX_KERNEL[] = {
-#include "kernels/matrix.cl"
-0};
-const char TEXT_KERNEL[] = {
-#include "kernels/text.cl"
-0};
-
-const char* KERNELS[] = {
-        IMAGE_KERNEL,
-        LIST_KERNEL,
-        MATRIX_KERNEL,
-        TEXT_KERNEL
-};
-
-const size_t KERNEL_LENGTHS[4] = {
-        CL_MAX_KERNEL_LENGTH,
-        CL_MAX_KERNEL_LENGTH,
-        CL_MAX_KERNEL_LENGTH,
-        CL_MAX_KERNEL_LENGTH
-};
+#include "kernels.h"
 
 void hetkerInit() {
     deviceList.length = 0;

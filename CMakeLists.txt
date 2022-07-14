@@ -8,7 +8,7 @@ find_package(OpenCL REQUIRED)
 include_directories(${OpenCL_INCLUDE_DIRS})
 link_directories(${OpenCL_LIBRARY})
 
-add_executable(hetker main.c init.c hetker_lib.h hetker.h util.c util.h strings.c strings.h)
+add_executable(hetker main.c init.c hetker_lib.h hetker.h util.c util.h strings.c strings.h list_op.c list_op.h kernels.h)
 
 target_include_directories (hetker PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries (hetker ${OpenCL_LIBRARY})

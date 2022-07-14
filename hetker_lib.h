@@ -23,6 +23,34 @@ struct tagTask {
     cl_kernel kernel;
 };
 
+typedef struct tagTaskSeqNode TaskSeqNode;
+struct tagTaskSeqNode {
+    Task* task;
+    TaskSeqNode* next;
+};
+
+typedef struct tagTaskSeq TaskSeq;
+struct tagTaskSeq {
+    TaskSeqNode* head;
+    Device* device;
+};
+
+typedef struct tagTaskDescriptor TaskDescriptor;
+struct tagTaskDescriptor {
+    String kernel;
+    size_t typesCount;
+    String* types;
+    String* includes;
+    size_t includesLength;
+    Device* device;
+};
+
+typedef struct tagTaskDescriptorSeq TaskDescriptorSeq;
+struct tagTaskDescriptorSeq {
+    TaskDescriptor* cur;
+    TaskDescriptor* next;
+};
+
 extern DeviceList deviceList;
 extern int loggingEnabled;
 
