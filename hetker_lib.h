@@ -37,18 +37,19 @@ struct tagTaskSeq {
 
 typedef struct tagTaskDescriptor TaskDescriptor;
 struct tagTaskDescriptor {
-    String kernel;
+    const String* kernel;
     size_t typesCount;
-    String* types;
-    String* includes;
+    const String* types;
+    const String* includes;
     size_t includesLength;
     Device* device;
 };
 
 typedef struct tagTaskDescriptorSeq TaskDescriptorSeq;
 struct tagTaskDescriptorSeq {
-    TaskDescriptor* cur;
-    TaskDescriptor* next;
+    TaskDescriptor* data;
+    size_t curLength;
+    size_t length;
 };
 
 extern DeviceList deviceList;
