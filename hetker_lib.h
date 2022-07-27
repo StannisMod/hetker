@@ -12,16 +12,20 @@
 #include "strings.h"
 #include "util.h"
 
+#include "kernels/header.cl"
+
 // TODO Count & check
 #define LIB_KERNEL_COUNT 15
 #define CL_MAX_DEVICES 100
 
-typedef struct tagTask Task;
-struct tagTask {
+typedef struct {
     unsigned char dataType; // 0 - list, 1 - matrix, 2 - image
     cl_device_id device;
     cl_kernel kernel;
-};
+    size_t inputMemorySize;
+    size_t outputMemorySize;
+    // TODO
+} Task;
 
 typedef struct tagTaskSeqNode TaskSeqNode;
 struct tagTaskSeqNode {
@@ -29,28 +33,25 @@ struct tagTaskSeqNode {
     TaskSeqNode* next;
 };
 
-typedef struct tagTaskSeq TaskSeq;
-struct tagTaskSeq {
+typedef struct {
     TaskSeqNode* head;
     Device* device;
-};
+} TaskSeq;
 
-typedef struct tagTaskDescriptor TaskDescriptor;
-struct tagTaskDescriptor {
+typedef struct {
     const String* kernel;
-    size_t typesCount;
-    const String* types;
-    const String* includes;
-    size_t includesLength;
-    Device* device;
-};
+    StringArray types;
+    SizeArray typesSizes;
+    StringArray includes;
+    SizeArray taskLengths;
+    const Device* device;
+} TaskDescriptor;
 
-typedef struct tagTaskDescriptorSeq TaskDescriptorSeq;
-struct tagTaskDescriptorSeq {
+typedef struct {
     TaskDescriptor* data;
     size_t curLength;
     size_t length;
-};
+} TaskDescriptorSeq;
 
 extern DeviceList deviceList;
 extern int loggingEnabled;
@@ -61,7 +62,7 @@ int checkErr(cl_int err, char* errorMsg);
 
 void logger(const char data[]) {
     if (loggingEnabled) {
-        printf("[hetker] %s", data);
+        printf("[hetker] %s\n", data);
     }
 }
 
