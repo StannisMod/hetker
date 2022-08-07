@@ -1,8 +1,7 @@
-// define: THRESHOLD
-// macro args: input type
+// define: THRESHOLD, INPUT, OUTPUT
 
 // filter predicate returns (1 <=> predicate is true, 0 <=> predicate is false)
-kernel void compact_count(global %s* src, global size_t* count) {
+kernel void compact_count(global INPUT* src, global size_t* count) {
     size_t ind = get_global_id(0);
     for (int i = 0; i < THRESHOLD; i++) {
         count[ind + i] = predicate(src[ind + i]);
@@ -12,7 +11,7 @@ kernel void compact_count(global %s* src, global size_t* count) {
 // here an inclusive prefix sum on "count" array should be performed
 
 // there is an additional param - a descriptor that should tell next node the length of the dst array
-kernel void compact_apply(global %s* src, global %s prefix, global %s dst, global DeviceElementDescriptor* descriptor, global DeviceTaskDescriptor* task) {
+kernel void compact_apply(global INPUT* src, global size_t* prefix, global OUTPUT* dst, global DeviceElementDescriptor* descriptor, global DeviceTaskDescriptor* task) {
     size_t ind = get_global_id(0);
     for (int i = 0; i < THRESHOLD; i++) {
         size_t real_ind = ind * THRESHOLD + i;

@@ -12,8 +12,6 @@ typedef struct {
     cl_device_id id;
     cl_context context;
     cl_command_queue queue;
-    cl_program program;
-    cl_kernel kernels[LIB_KERNEL_COUNT];
 } Device;
 
 typedef struct {

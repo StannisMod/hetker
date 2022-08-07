@@ -5,12 +5,18 @@ void hetkerInit() {
     deviceList.length = 0;
 }
 
-void hetkerEnableLogging() {
-    loggingEnabled = 1;
+void hetkerFree() {
+    for (size_t i = 0; i < deviceList.length; i++) {
+        Device* device = deviceList.data[i];
+        clReleaseCommandQueue(device->queue);
+        clReleaseContext(device->context);
+        clReleaseDevice(device->id);
+    }
+    free(deviceList.data);
 }
 
-cl_kernel* initKernels(Device* device) {
-    // TODO
+void hetkerEnableLogging() {
+    loggingEnabled = 1;
 }
 
 Result* hetkerInitDevice(cl_device_id deviceId) {
@@ -36,45 +42,44 @@ Result* hetkerInitDevice(cl_device_id deviceId) {
         return loggingResult(errCode, "Error on create command queue");
     }
 
-    cl_program program = clCreateProgramWithSource(context,
-                                                   4,
-                                                   &KERNELS[0],
-                                                   &KERNEL_LENGTHS[0], &errCode);
-
-    if (errCode != CL_SUCCESS) {
-        clReleaseCommandQueue(queue);
-        clReleaseContext(context);
-        return loggingResult(errCode, "Error on create program");
-    }
-
-    char options[100];
-//    sprintf(options, "-D BATCH_SIZE=%i", batchSize);
-
-    if ((errCode = clBuildProgram(program, 1, &deviceId, options, NULL, NULL)) != 0) {
-
-        size_t log_size;
-        clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
-
-        char *log = malloc(log_size);
-        clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
-
-        char* text = malloc(log_size + 50 * sizeof(char));
-        sprintf(text, "Error on build program: %i\n%s\n", errCode, log);
-        free(log);
-        Result* res = loggingResult(errCode, text);
-        free(text);
-
-        clReleaseProgram(program);
-        clReleaseCommandQueue(queue);
-        clReleaseContext(context);
-        return res;
-    }
+//    cl_program program = clCreateProgramWithSource(context,
+//                                                   4,
+//                                                   &KERNELS[0],
+//                                                   &KERNEL_LENGTHS[0], &errCode);
+//
+//    if (errCode != CL_SUCCESS) {
+//        clReleaseCommandQueue(queue);
+//        clReleaseContext(context);
+//        return loggingResult(errCode, "Error on create program");
+//    }
+//
+//    char options[100];
+////    sprintf(options, "-D BATCH_SIZE=%i", batchSize);
+//
+//    if ((errCode = clBuildProgram(program, 1, &deviceId, options, NULL, NULL)) != 0) {
+//
+//        size_t log_size;
+//        clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
+//
+//        char *log = malloc(log_size);
+//        clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
+//
+//        char* text = malloc(log_size + 50 * sizeof(char));
+//        sprintf(text, "Error on build program: %i\n%s\n", errCode, log);
+//        free(log);
+//        Result* res = loggingResult(errCode, text);
+//        free(text);
+//
+//        clReleaseProgram(program);
+//        clReleaseCommandQueue(queue);
+//        clReleaseContext(context);
+//        return res;
+//    }
 
     Device* device = malloc(sizeof(Device));
+    device->id = deviceId;
     device->context = context;
     device->queue = queue;
-    device->program = program;
-    device->kernels = initKernels(device);
 
     deviceList.data[deviceList.length] = device;
 

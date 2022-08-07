@@ -12,6 +12,9 @@ const char MATRIX_KERNEL[] = {
 const char TEXT_KERNEL[] = {
 #include "kernels/text.cl"
         0};
+const char HEADER_KERNEL[] = {
+#include "kernels/header.cl"
+        0};
 
 // TODO Count & check
 #define CL_MAX_KERNEL_LENGTH 10000

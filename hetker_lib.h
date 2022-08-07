@@ -19,8 +19,8 @@
 #define CL_MAX_DEVICES 100
 
 typedef struct {
-    unsigned char dataType; // 0 - list, 1 - matrix, 2 - image
-    cl_device_id device;
+    //unsigned char dataType; // 0 - list, 1 - matrix, 2 - image
+    cl_program program;
     cl_kernel kernel;
     size_t inputMemorySize;
     size_t outputMemorySize;
@@ -35,22 +35,23 @@ struct tagTaskSeqNode {
 
 typedef struct {
     TaskSeqNode* head;
-    Device* device;
+    const Device* device;
+    int valid;
 } TaskSeq;
 
 typedef struct {
-    const String* kernel;
+    String* kernel;
     StringArray types;
     SizeArray typesSizes;
     StringArray includes;
     SizeArray taskLengths;
-    const Device* device;
 } TaskDescriptor;
 
 typedef struct {
     TaskDescriptor* data;
     size_t curLength;
     size_t length;
+    int conserveMemory; // TODO: Unimplemented
 } TaskDescriptorSeq;
 
 extern DeviceList deviceList;

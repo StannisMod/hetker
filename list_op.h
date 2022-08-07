@@ -5,7 +5,7 @@
 
 #include "hetker_lib.h"
 
-TaskSeq* compileTaskSeq(TaskDescriptorSeq* descriptors);
+TaskSeq* compileTaskSeq(TaskDescriptorSeq* descriptors, const Device* device);
 
 TaskDescriptorSeq* newTaskDescriptorSeq(size_t seqLength, String* inputType, String* includes, size_t includesLength);
 
