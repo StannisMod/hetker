@@ -53,11 +53,18 @@ TaskDescriptorSeq* newTaskDescriptorSeq(size_t seqLength, String* inputType, Str
     return res;
 }
 
-char* getKernelByName(const char* name) {
+const char* getKernelByName(const char* name) {
     if (!strcmp(name, "filter")) {
         return FILTER_KERNEL;
+    } else if (!strcmp(name, "map")) {
+        return MAP_KERNEL;
+    } else if (!strcmp(name, "prefix")) {
+        return PREFIX_KERNEL;
+    } else if (!strcmp(name, "reduce")) {
+        return REDUCE_KERNEL;
+    } else {
+        return NULL;
     }
-    // TODO
 }
 
 TaskSeq* compileTaskSeq(TaskDescriptorSeq* descriptors, const Device* device) {
@@ -76,6 +83,10 @@ TaskSeq* compileTaskSeq(TaskDescriptorSeq* descriptors, const Device* device) {
         size_t* includesLengths = malloc((descriptor->includes.length + 2) * sizeof(size_t));
         includes[0] = HEADER_KERNEL;
         includes[1] = getKernelByName(descriptor->kernel->chars);
+        if (includes[1] == NULL) {
+            printf("Can't compile sequence: Kernel %s not recognized", descriptor->kernel->chars);
+            return NULL;
+        }
         includesLengths[0] = strlen(includes[0]);
         includesLengths[1] = strlen(includes[1]);
         for (int j = 0; j < descriptor->includes.length; j++) {
@@ -85,17 +96,40 @@ TaskSeq* compileTaskSeq(TaskDescriptorSeq* descriptors, const Device* device) {
 
         int errCode;
         cl_program program = clCreateProgramWithSource(device->context, 1, includes, includesLengths, &errCode);
-        if (checkErr(errCode, "Failed to create program")) {
+        if (checkErr(errCode, "Can't compile sequence: Failed to create program")) {
             return seq;
         }
         free(includes);
+        free(includesLengths);
 
-        // TODO Build program
+        char options[1000];
+
+        char* inputType = "";
+        if (nextInputType != NULL) {
+            inputType = nextInputType->chars;
+        }
+        sprintf(options, "-D THRESHOLD=%i -D INPUT_TYPE=%s -D OUTPUT_TYPE=%s", descriptor->threshold, inputType, nextOutputType->chars);
+
+        if ((errCode = clBuildProgram(program, 1, &device->id, options, NULL, NULL)) != 0) {
+            printf("Can't compile sequence: Error on build program: %i\n", errCode);
+
+            size_t log_size;
+            clGetProgramBuildInfo(program, device->id, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
+
+            char *log = malloc(log_size);
+            clGetProgramBuildInfo(program, device->id, CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
+
+            printf("%s\n", log);
+            free(log);
+
+            clReleaseProgram(program);
+            return NULL;
+        }
 
         cl_kernel kernel = clCreateKernel(program, descriptor->kernel->chars, &errCode);
-        if (checkErr(errCode, "Failed to create kernel")) {
+        if (checkErr(errCode, "Can't compile sequence: Failed to create kernel")) {
             clReleaseProgram(program);
-            return seq;
+            return NULL;
         }
 
         cur.program = program;
@@ -123,4 +157,8 @@ void freeTaskDescriptorSeq(TaskDescriptorSeq* descriptors) {
         free(descriptor);
     }
     free(descriptors);
+}
+
+Result* runTaskSeq(TaskSeq* seq) {
+
 }

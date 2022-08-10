@@ -3,6 +3,9 @@
 
 void hetkerInit() {
     deviceList.length = 0;
+    for (int i = 0; i < HETKER_KERNELS_COUNT; i++) {
+        KERNEL_LENGTHS[i] = strlen(KERNELS[i]);
+    }
 }
 
 void hetkerFree() {

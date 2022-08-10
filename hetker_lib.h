@@ -45,6 +45,7 @@ typedef struct {
     SizeArray typesSizes;
     StringArray includes;
     SizeArray taskLengths;
+    int threshold; // TODO
 } TaskDescriptor;
 
 typedef struct {
